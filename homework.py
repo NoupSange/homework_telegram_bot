@@ -53,7 +53,6 @@ def check_tokens() -> None:
 
 def send_message(bot, message: str) -> None:
     """Отправляет сообщение о статусе работы."""
-    print(type(bot))
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.debug('Сообщение отправлено.Пауза 10 мин.')
@@ -117,6 +116,7 @@ def parse_status(homework: dict) -> str:
 
     if not homework:
         verdict = 'Изменения отсуствуют.'
+        logger.debug(f'Сообщение: {verdict}')
         return verdict
 
     else:
