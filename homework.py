@@ -46,7 +46,7 @@ def check_tokens() -> None:
     if missed_tokens:
         error = f'Отсутствуют переменные окружения: {','.join(missed_tokens)}'
         logging.critical(error)
-        sys.exit()
+        raise CheckTokensError(error)
 
 
 def send_message(bot, message: str) -> None:
