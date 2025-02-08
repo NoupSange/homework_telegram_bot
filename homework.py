@@ -44,7 +44,7 @@ def check_tokens() -> None:
         if not token_tuple[1]:
             missed_tokens.append(token_tuple[0])
     if missed_tokens:
-        error = f'Отсутствуют переменные окружения: {','.join(missed_tokens)}'
+        error = f'Отсутствуют переменные окружения: {",".join(missed_tokens)}'
         logging.critical(error)
         raise CheckTokensError(error)
 
