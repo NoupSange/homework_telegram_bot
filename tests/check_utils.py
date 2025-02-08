@@ -1,6 +1,6 @@
 import logging
-import signal
 import re
+import signal
 from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
