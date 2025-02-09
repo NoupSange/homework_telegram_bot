@@ -9,7 +9,7 @@ import requests
 import telebot
 from dotenv import load_dotenv
 
-from exceptions import (CheckTokensError, InvalidJSONError, RequestApiError,
+from exceptions import (СheckTokensError, InvalidJSONError, RequestApiError,
                         ResponseApiError)
 
 load_dotenv()
@@ -23,12 +23,6 @@ RETRY_PERIOD = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
-TOKENS = (
-    ('PRACTICUM_TOKEN', PRACTICUM_TOKEN),
-    ('TELEGRAM_TOKEN', TELEGRAM_TOKEN),
-    ('TELEGRAM_CHAT_ID', TELEGRAM_CHAT_ID)
-)
-
 HOMEWORK_VERDICTS = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
@@ -39,14 +33,20 @@ HOMEWORK_VERDICTS = {
 def check_tokens() -> None:
     """Проверяет доступность переменных окружения."""
     logging.debug('Проверка токенов...')
+
+    TOKENS = (
+        ('PRACTICUM_TOKEN', PRACTICUM_TOKEN),
+        ('TELEGRAM_TOKEN', TELEGRAM_TOKEN),
+        ('TELEGRAM_CHAT_ID', TELEGRAM_CHAT_ID)
+    )
     missed_tokens = []
     for token_tuple in TOKENS:
-        if not token_tuple[1]:
+        if token_tuple[1] is None:
             missed_tokens.append(token_tuple[0])
     if missed_tokens:
-        error = f'Отсутствуют переменные окружения: {",".join(missed_tokens)}'
+        error = f"Отсутсвуют переменные окружения:{','.join(missed_tokens)}"
         logging.critical(error)
-        raise CheckTokensError(error)
+        raise СheckTokensError(error)
 
 
 def send_message(bot, message: str) -> None:

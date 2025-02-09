@@ -1,5 +1,5 @@
-class CheckTokensError(Exception):
-    """Отсутствуют необходимые токены аутентификации."""
+class СheckTokensError(Exception):
+    """Ошибка в наличии токенов."""
 
 
 class RequestApiError(Exception):
