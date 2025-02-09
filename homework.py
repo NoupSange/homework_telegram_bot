@@ -3,14 +3,14 @@ import os
 import sys
 import time
 from http import HTTPStatus
-from logging import StreamHandler
+from logging import FileHandler, StreamHandler
 
 import requests
 import telebot
 from dotenv import load_dotenv
 
-from exceptions import (СheckTokensError, InvalidJSONError, RequestApiError,
-                        ResponseApiError)
+from exceptions import (InvalidJSONError, RequestApiError, ResponseApiError,
+                        СheckTokensError)
 
 load_dotenv()
 
@@ -143,7 +143,6 @@ def main():
         try:
             response = (get_api_answer(timestamp))
             homeworks, current_time_timestamp = check_response(response)
-            print(current_time_timestamp)
             if len(homeworks) != 0:
                 homeworks = homeworks[0]
                 verdict = parse_status(homeworks)
@@ -169,7 +168,8 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s [%(levelname)s] %(message)s',
-        handlers=[StreamHandler(stream=sys.stdout)]
+        handlers=[StreamHandler(stream=sys.stdout),
+                  FileHandler('main.log', 'a')]
     )
 
     main()
