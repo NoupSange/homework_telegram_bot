@@ -40,9 +40,9 @@ def check_tokens() -> None:
         ('TELEGRAM_CHAT_ID', TELEGRAM_CHAT_ID)
     )
     missed_tokens = []
-    for token_tuple in TOKENS:
-        if token_tuple[1] is None:
-            missed_tokens.append(token_tuple[0])
+    for token_name, token_value in TOKENS:
+        if token_value is None:
+            missed_tokens.append(token_name)
     if missed_tokens:
         error = f"Отсутсвуют переменные окружения:{','.join(missed_tokens)}"
         logging.critical(error)
@@ -54,11 +54,13 @@ def send_message(bot, message: str) -> None:
     logging.debug('Отправка сообщения...')
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        logging.debug('Сообщение отправлено.Пауза 10 мин.')
+        logging.debug(f'Сообщение отправлено.Пауза {RETRY_PERIOD / 60} минут.')
+        return True
     except (
         telebot.apihelper.ApiException, requests.RequestException
     ) as error:
-        logging.error(f'Сбой в работе программы: {error}')
+        logging.error(f'Сбой при отправке сообщения: {error}')
+        return False
 
 
 def get_api_answer(timestamp: int) -> dict:
@@ -70,10 +72,7 @@ def get_api_answer(timestamp: int) -> dict:
             headers=HEADERS,
             params={'from_date': timestamp}
         )
-    except Exception as e:
-        logging.error(
-            f' Ошибка запроса: {e}'
-        )
+    except requests.RequestException as e:
         raise RequestApiError(f'Ошибка запроса к api: {e}.')
 
     status_code = response.status_code
@@ -99,12 +98,11 @@ def check_response(response: dict) -> tuple[dict, int]:
         raise KeyError('Отсутствует ключ homeworks.')
 
     homeworks = response['homeworks']
-    current_time_timestamp = response.get('current_date', int(time.time()))
     if not isinstance(homeworks, list):
         raise TypeError('В ответе API под ключом `homeworks` данные',
                         'приходят не в виде списка.')
 
-    return homeworks, current_time_timestamp
+    return homeworks
 
 
 def parse_status(homework: dict) -> str:
@@ -135,30 +133,30 @@ def main():
     """Основная логика работы бота."""
     check_tokens()
     bot = telebot.TeleBot(token=TELEGRAM_TOKEN)
-    timestamp = int(time.time())
-    last_message = ''
+    timestamp = 0
+    last_error = ''
 
     while True:
 
         try:
             response = (get_api_answer(timestamp))
-            homeworks, current_time_timestamp = check_response(response)
-            if len(homeworks) != 0:
+            homeworks = check_response(response)
+            if homeworks:
                 homeworks = homeworks[0]
                 verdict = parse_status(homeworks)
-                send_message(bot, verdict)
-                send_message_status = True
+                send_message_status = send_message(bot, verdict)
             else:
-                send_message_status = False
                 logging.debug('Изменения отсуствуют. Пауза 10 минут.')
             if send_message_status:
-                timestamp = current_time_timestamp
+                timestamp = response.get('current_date', timestamp)
+                last_error = ''
+
         except Exception as e:
             logging.error(e)
-            message = f'Сбой в работе программы: {e}'
-            if last_message != message:
-                send_message(bot, message)
-                last_message = message
+            error = f'Сбой в работе программы: {e}'
+            if last_error != error:
+                send_message(bot, error)
+                last_error = error
 
         finally:
             time.sleep(RETRY_PERIOD)
