@@ -145,11 +145,12 @@ def main():
                 homeworks = homeworks[0]
                 verdict = parse_status(homeworks)
                 send_message_status = send_message(bot, verdict)
+                if send_message_status:
+                    timestamp = response.get('current_date', timestamp)
+                    last_error = ''
             else:
                 logging.debug('Изменения отсуствуют. Пауза 10 минут.')
-            if send_message_status:
-                timestamp = response.get('current_date', timestamp)
-                last_error = ''
+
 
         except Exception as e:
             logging.error(e)
