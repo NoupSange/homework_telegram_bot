@@ -41,3 +41,25 @@
 2025-08-14 15:46:55,618 [DEBUG] Starting new HTTPS connection (1): api.telegram.org:443
 ...
 ```
+
+# Установка и запуск
+1. Клонируйте проект. Перейдите в созданную директорию локального репозитория.
+2. Создайте и активируйте виртуальное окружение:
+```
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+Установите зависимости:
+```
+pip install -r requirements.txt
+```
+Создайте файл .env в корне проекта и добавьте переменные:
+```
+PRACTICUM_TOKEN=токен_практикума
+TELEGRAM_TOKEN=токен_бота_telegram
+TELEGRAM_CHAT_ID=ваш_id_чата
+```
+Запустите бота:
+```
+python homework.py
+```
